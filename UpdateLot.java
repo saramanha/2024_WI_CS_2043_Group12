@@ -1,5 +1,3 @@
-package UpdateLot;
-
 
 	import java.sql.Connection;
 	import java.sql.DriverManager;
@@ -17,7 +15,7 @@ public class UpdateLot {
 		private final Statement EXECUTESTMNT; // create statement
 
 	private UpdateLot() throws SQLException{ 
-			CONNECTION = DriverManager.getConnection("jdbc:mysql://pwilson3:", "myuser", "xxxx");
+			CONNECTION = DriverManager.getConnection("jdbc:mysql://cs1103.cs.unb.ca:", "pwilson3", "xxxx");
 			SELECTSTMNT = "select * from ParkingLot";
 			EXECUTESTMNT = CONNECTION.createStatement();
 			PUTSTMNT = "INSERT INTO ParkingLot (spotId, isOccupied, vehiclePlate, vehicleDesc, idleTime"
@@ -27,15 +25,17 @@ public class UpdateLot {
 	/**
 	 * compiles a String of data from a parking lot sql base
 	 * @return 2d string array rows = id, bool(isOccupied), plate, description, time spent
+	 * @return null if SQL errors occur
 	 */
 	public static String[][] getLotData() {
 		try {
 			UpdateLot data = new UpdateLot();
 			ResultSet rset = data.calculateLotData();
-			String[][] stringOut =  new String[5][10];
+				if (rset == null) throw new SQLException();
+			String[][] stringOut =  new String[5][40];
 			int i = 0;
 			while(rset.next()) {
-				if (i < 10) {
+				if (i < 40) {
 					stringOut[0][i] += rset.getString("spotId") + " ";
 					stringOut[1][i] += rset.getBoolean("isOccupied");
 					stringOut[2][i] += " " + rset.getString("vehiclePlate")+" ";
