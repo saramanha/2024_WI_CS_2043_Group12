@@ -18,11 +18,11 @@ public class ParkingSpot {
     public static boolean isValidSpotId(String spotId) {
         return spotId.matches("^[a-e][1-8]$");
     }
-    public String getSpotId() {
-        return spotId;
-    }
     public boolean isOccupied() {
         return isOccupied;
+    }
+    public String getSpotId() {
+        return spotId;
     }
     public void occupySpot(String licencePlate) {
         this.isOccupied = true;
