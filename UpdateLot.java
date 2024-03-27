@@ -15,11 +15,11 @@ public class UpdateLot {
 		private final Statement EXECUTESTMNT; // create statement
 
 	private UpdateLot() throws SQLException{ 
-			CONNECTION = DriverManager.getConnection("jdbc:mysql://cs1103.cs.unb.ca:", "pwilson3", "xxxx");
+			CONNECTION = DriverManager.getConnection("jdbc:mysql://cs1103.cs.unb.ca:", "n93gf", "sGBW8PV0");
 			SELECTSTMNT = "select * from ParkingLot";
 			EXECUTESTMNT = CONNECTION.createStatement();
-			PUTSTMNT = "INSERT INTO ParkingLot (spotId, isOccupied, vehiclePlate, vehicleDesc, idleTime"
-					+ "VALUES (?,?,?,?,?))";
+			PUTSTMNT = "Update ParkingLot set isOccupied = ?, vehiclePlate = ?, vehicleDesc = ?, idleTime = ?"
+					+ "where spotId = ?";
 	}
 	
 	/**
@@ -36,11 +36,11 @@ public class UpdateLot {
 			int i = 0;
 			while(rset.next()) {
 				if (i < 40) {
-					stringOut[0][i] += rset.getString("spotId") + " ";
-					stringOut[1][i] += rset.getBoolean("isOccupied");
-					stringOut[2][i] += " " + rset.getString("vehiclePlate")+" ";
-					stringOut[3][i] += rset.getString("vehicleDesc");
-					stringOut[4][i] += " " + (data.calculateIdleTime() - rset.getInt("idleTime"));
+					stringOut[i][0] += rset.getString("spotId") + " ";
+					stringOut[i][1] += rset.getBoolean("isOccupied");
+					stringOut[i][2] += " " + rset.getString("vehiclePlate")+" ";
+					stringOut[i][3] += rset.getString("vehicleDesc");
+					stringOut[i][4] += " " + (data.calculateIdleTime() rset.getInt("idleTime"));
 					i++;
 				}
 			}
@@ -60,11 +60,11 @@ public class UpdateLot {
 	public void updateLot(String[] dataIn) {
 		try {
 			PreparedStatement outStmnt = CONNECTION.prepareStatement(PUTSTMNT);
-			outStmnt.setString(1, dataIn[0]);
-			outStmnt.setBoolean(2, true);
-			outStmnt.setString(3, dataIn[1]);
-			outStmnt.setString(4, dataIn[2]);
-			outStmnt.setInt(5, calculateIdleTime());
+			outStmnt.setString(5, dataIn[0]);
+			outStmnt.setBoolean(1, true);
+			outStmnt.setString(2, dataIn[1]);
+			outStmnt.setString(3, dataIn[2]);
+			outStmnt.setInt(4, calculateIdleTime());
 			outStmnt.execute();
 		}
 		catch(Exception e) {
