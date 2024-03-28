@@ -32,14 +32,14 @@ public class UpdateLot {
 			UpdateLot data = new UpdateLot();
 			ResultSet rset = data.calculateLotData();
 				if (rset == null) throw new SQLException();
-			String[][] stringOut =  new String[5][40];
+			String[][] stringOut =  new String[40][5];
 			int i = 0;
 			while(rset.next()) {
-				if (i < 40) {
-					stringOut[i][0] += rset.getString("spotId") + " ";
+				if (i < 41) {
+					stringOut[i][0] += rset.getString("spotId");
 					stringOut[i][1] += rset.getBoolean("isOccupied");
-					stringOut[i][2] += " " + rset.getString("vehiclePlate")+" ";
-					stringOut[i][3] += rset.getString("vehicleDesc");
+					stringOut[i][2] += " " + rset.getString("vehiclePlate");
+					stringOut[i][3] += rset.getString("ticketNum");
 					stringOut[i][4] += " " + (data.calculateIdleTime() - rset.getInt(5));
 					i++;
 				}
