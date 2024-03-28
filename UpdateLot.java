@@ -38,9 +38,9 @@ public class UpdateLot {
 				if (i < 41) {
 					stringOut[i][0] += rset.getString("spotId");
 					stringOut[i][1] += rset.getBoolean("isOccupied");
-					stringOut[i][2] += " " + rset.getString("vehiclePlate");
+					stringOut[i][2] += rset.getString("vehiclePlate");
 					stringOut[i][3] += rset.getString("ticketNum");
-					stringOut[i][4] += " " + (data.calculateIdleTime() - rset.getInt(5));
+					stringOut[i][4] += "" + (data.calculateIdleTime() - rset.getInt(5));
 					i++;
 				}
 			}
