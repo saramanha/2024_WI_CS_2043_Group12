@@ -18,8 +18,8 @@ public class UpdateLot {
 			CONNECTION = DriverManager.getConnection("jdbc:mysql://cs1103.cs.unb.ca:", "n93gf", "sGBW8PV0");
 			SELECTSTMNT = "select * from ParkingLot";
 			EXECUTESTMNT = CONNECTION.createStatement();
-			PUTSTMNT = "Update ParkingLot set isOccupied = ?, vehiclePlate = ?, vehicleDesc = ?, idleTime = ?"
-					+ "where spotId = ?";
+			PUTSTMNT = "UPDATE ParkingLot SET isOccupied = ?, vehiclePlate = ?, ticketNum = ?, idleTime = ?"
+					+ "WHERE spotId = ?;";
 	}
 	
 	/**
@@ -40,7 +40,7 @@ public class UpdateLot {
 					stringOut[i][1] += rset.getBoolean("isOccupied");
 					stringOut[i][2] += " " + rset.getString("vehiclePlate")+" ";
 					stringOut[i][3] += rset.getString("vehicleDesc");
-					stringOut[i][4] += " " + (data.calculateIdleTime() rset.getInt("idleTime"));
+					stringOut[i][4] += " " + (data.calculateIdleTime() - rset.getInt(5));
 					i++;
 				}
 			}
