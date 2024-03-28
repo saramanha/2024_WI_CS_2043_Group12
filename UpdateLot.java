@@ -16,7 +16,7 @@ public class UpdateLot {
 
 	private UpdateLot() throws SQLException{ 
 			CONNECTION = DriverManager.getConnection("jdbc:mysql://cs1103.cs.unb.ca:", "n93gf", "sGBW8PV0");
-			SELECTSTMNT = "select * from ParkingLot";
+			SELECTSTMNT = "SELECT * from ParkingLot";
 			EXECUTESTMNT = CONNECTION.createStatement();
 			PUTSTMNT = "UPDATE ParkingLot SET isOccupied = ?, vehiclePlate = ?, ticketNum = ?, idleTime = ?"
 					+ "WHERE spotId = ?;";
@@ -55,15 +55,21 @@ public class UpdateLot {
 	
 	/**
 	 * sends an update to the sql table when parking is updated
-	 * @param dataIn a String containing 3 rows: id, plate, description
+	 * @param dataIn a String array containing 4 rows: id, spot taken status("t" or "f"), plate num, ticket num 
+	 * input plate and ticket num as null to reset a spot 
 	 */
 	public void updateLot(String[] dataIn) {
 		try {
 			PreparedStatement outStmnt = CONNECTION.prepareStatement(PUTSTMNT);
 			outStmnt.setString(5, dataIn[0]);
-			outStmnt.setBoolean(1, true);
-			outStmnt.setString(2, dataIn[1]);
-			outStmnt.setString(3, dataIn[2]);
+			if (dataIn[1] == "t"){
+				outStmnt.setBoolean(1, true);
+			}
+			else{
+				outStmnt.setBoolean(1, false);
+			}
+			outStmnt.setString(2, dataIn[2]);
+			outStmnt.setString(3, dataIn[3]);
 			outStmnt.setInt(4, calculateIdleTime());
 			outStmnt.execute();
 		}
