@@ -56,7 +56,7 @@ public class UpdateLot {
 	/**
 	 * sends an update to the sql table when parking is updated
 	 * @param dataIn a String array containing 4 rows: id, spot taken status("t" or "f"), plate num, ticket num 
-	 * input plate and ticket num as null to reset a spot 
+	 * input plate and ticket num as null with "f" as the second col to reset a spot 
 	 */
 	public void updateLot(String[] dataIn) {
 		try {
