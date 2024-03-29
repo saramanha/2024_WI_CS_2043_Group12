@@ -17,6 +17,10 @@ public class App extends Application {
     private TextField durationField;
     private TextField licencePlateField;
     private Button selectedParkingButton = null;
+    final String greenStyle = "-fx-background-color: #689d6a; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;";
+    final String hoveredStyle = "-fx-background-color: #8ec07c; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;";
+    final String selectedStyle = "-fx-background-color: #fe8019; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;";
+    final String purchasedStyle = "-fx-background-color: #928374; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;";
 
     @Override
     public void start(Stage primaryStage) {
@@ -35,24 +39,24 @@ public class App extends Application {
             for (int col = 0; col < 5; col++) {
                 String label = "" + (char)('A' + col) + (row + 1);
                 Button button = new Button(label);
-                button.setStyle("-fx-background-color: #689d6a; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
+                button.setStyle(greenStyle);
                 button.setUserData(false);
                 button.setOnMouseEntered(e -> {
                     if (!(Boolean)button.getUserData()) {
-                        button.setStyle("-fx-background-color: #8ec07c; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
+                        button.setStyle(hoveredStyle);
                     }
                 });
                 button.setOnMouseExited(e -> {
                     if (!(Boolean)button.getUserData()) {
-                        button.setStyle("-fx-background-color: #689d6a; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
+                        button.setStyle(greenStyle);
                     }
                 });
                 button.setOnAction(e -> { // To do: multiple buttons can be selected and turned orange, need to fix without breaking other functionality
                     if (!(Boolean)button.getUserData()) {
                         if (selectedParkingButton != null && !(Boolean)selectedParkingButton.getUserData()) {
-                            selectedParkingButton.setStyle("-fx-background-color: #689d6a; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
+                            selectedParkingButton.setStyle(greenStyle);
                         }
-                        button.setStyle("-fx-background-color: #fe8019; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
+                        button.setStyle(selectedStyle);
                         button.setUserData(true);
                         selectedParkingButton = button;
                     }
