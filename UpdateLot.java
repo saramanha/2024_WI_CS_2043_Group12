@@ -19,12 +19,12 @@ public class UpdateLot {
 			SELECTSTMNT = "SELECT * from ParkingLot";
 			EXECUTESTMNT = CONNECTION.createStatement();
 			PUTSTMNT = "UPDATE ParkingLot SET isOccupied = ?, vehiclePlate = ?, ticketNum = ?, idleTime = ?"
-					+ "WHERE spotId = ?;";
+					 + "WHERE spotId = ?;";
 	}
 	
 	/**
 	 * compiles a String of data from a parking lot sql base
-	 * @return 2d string array rows = id, bool(isOccupied), plate, description, time spent
+	 * @return 2d string array rows = id, boolean(isoccupied) as string, plate, ticketnum as string, time spent as string
 	 * @return null if SQL errors occur
 	 */
 	public static String[][] getLotData() {
@@ -36,11 +36,11 @@ public class UpdateLot {
 			int i = 0;
 			while(rset.next()) {
 				if (i < 41) {
-					stringOut[i][0] += rset.getString("spotId");
-					stringOut[i][1] += rset.getBoolean("isOccupied");
-					stringOut[i][2] += rset.getString("vehiclePlate");
-					stringOut[i][3] += rset.getString("ticketNum");
-					stringOut[i][4] += "" + (data.calculateIdleTime() - rset.getInt(5));
+					stringOut[i][0] = rset.getString("spotId");
+					stringOut[i][1] = Boolean.toString(rset.getBoolean("isOccupied"));
+					stringOut[i][2] = rset.getString("vehiclePlate");
+					stringOut[i][3] = rset.getString("ticketNum");
+					stringOut[i][4] = "" + (data.calculateIdleTime() - rset.getInt(5));
 					i++;
 				}
 			}
