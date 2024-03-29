@@ -40,8 +40,11 @@ public class UpdateLot {
 					stringOut[i][1] = Boolean.toString(rset.getBoolean("isOccupied"));
 					stringOut[i][2] = rset.getString("vehiclePlate");
 					stringOut[i][3] = rset.getString("ticketNum");
-					stringOut[i][4] = "" + (data.calculateIdleTime() - rset.getInt(5));
+					stringOut[i][4] = "" + (calculateIdleTime() - rset.getInt(5));
 					i++;
+				}
+				else{
+					break;
 				}
 			}
 			data.CONNECTION.close();
@@ -58,9 +61,10 @@ public class UpdateLot {
 	 * @param dataIn a String array containing 4 rows: id, spot taken status("t" or "f"), plate num, ticket num 
 	 * input plate and ticket num as null with "f" as the second col to reset a spot 
 	 */
-	public void updateLot(String[] dataIn) {
+	public static void updateLot(String[] dataIn) {
 		try {
-			PreparedStatement outStmnt = CONNECTION.prepareStatement(PUTSTMNT);
+			UpdateLot data = new UpdateLot();
+			PreparedStatement outStmnt = data.CONNECTION.prepareStatement(data.PUTSTMNT);
 			outStmnt.setString(5, dataIn[0]);
 			if (dataIn[1] == "t"){
 				outStmnt.setBoolean(1, true);
@@ -76,7 +80,7 @@ public class UpdateLot {
 		catch(Exception e) {
 			e.printStackTrace();
 			try {
-				CONNECTION.close();
+				data.CONNECTION.close();
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
@@ -95,7 +99,7 @@ public class UpdateLot {
 		}
 		
 		
-		private int calculateIdleTime() {
+		private static int calculateIdleTime() {
 			return (int) (System.currentTimeMillis() / 36000000);
 		}
 	}
