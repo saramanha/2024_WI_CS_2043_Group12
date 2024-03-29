@@ -47,10 +47,9 @@ public class App extends Application {
                         button.setStyle("-fx-background-color: #689d6a; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
                     }
                 });
-                button.setOnAction(e -> { // To do: button reverts from grey back to green when another button is clicked, it should stay grey.
-                    if (selectedParkingButton != null) {
+                button.setOnAction(e -> {
+                    if (selectedParkingButton != null && !(Boolean)selectedParkingButton.getUserData()) {
                         selectedParkingButton.setStyle("-fx-background-color: #689d6a; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
-                        selectedParkingButton.setUserData(false);
                     }
                     button.setStyle("-fx-background-color: #fe8019; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
                     button.setUserData(true);
