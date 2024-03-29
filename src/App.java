@@ -47,13 +47,15 @@ public class App extends Application {
                         button.setStyle("-fx-background-color: #689d6a; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
                     }
                 });
-                button.setOnAction(e -> {
-                    if (selectedParkingButton != null && !(Boolean)selectedParkingButton.getUserData()) {
-                        selectedParkingButton.setStyle("-fx-background-color: #689d6a; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
+                button.setOnAction(e -> { // To do: multiple buttons can be selected and turned orange, need to fix without breaking other functionality
+                    if (!(Boolean)button.getUserData()) {
+                        if (selectedParkingButton != null && !(Boolean)selectedParkingButton.getUserData()) {
+                            selectedParkingButton.setStyle("-fx-background-color: #689d6a; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
+                        }
+                        button.setStyle("-fx-background-color: #fe8019; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
+                        button.setUserData(true);
+                        selectedParkingButton = button;
                     }
-                    button.setStyle("-fx-background-color: #fe8019; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
-                    button.setUserData(true);
-                    selectedParkingButton = button;
                 }); // To do: Have the button return to green once a vehicle has left that spot <- handleButtonAction
         
                 grid.add(button, col, row);
