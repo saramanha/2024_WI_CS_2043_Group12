@@ -43,7 +43,8 @@ public class App extends Application {
             Button button = new Button(label);
             button.setStyle(greenStyle);
             button.setUserData(false);
-            button.setOnMouseEntered(e -> {
+            
+          /*  button.setOnMouseEntered(e -> {
                 if (!(Boolean)button.getUserData()) {
                     button.setStyle(hoveredStyle);
                 }
@@ -52,7 +53,8 @@ public class App extends Application {
                 if (!(Boolean)button.getUserData()) {
                     button.setStyle(greenStyle);
                 }
-            });
+            });*/
+            
             button.setOnAction(e -> { 
                 if ((Boolean)button.getUserData()) {
                     // If already selected, deselect
@@ -150,11 +152,20 @@ public class App extends Application {
         primaryStage.show();
     }
 
-    private void setupButtonStyle(Button button, String backgroundColor) {
+   private void setupButtonStyle(Button button, String backgroundColor) {
         button.setStyle("-fx-background-color: " + backgroundColor + "; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px;");
-        button.setOnMouseEntered(e -> button.setStyle("-fx-background-color: #83a598; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px;"));
-        button.setOnMouseExited(e -> button.setStyle("-fx-background-color: " + backgroundColor + "; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px;"));
+        button.setOnMouseEntered(e -> {
+            if (!(Boolean) button.getUserData()) {
+                button.setStyle("-fx-background-color: #83a598; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px;");
+            }
+        });
+        button.setOnMouseExited(e -> {
+            if (!(Boolean) button.getUserData()) {
+                button.setStyle("-fx-background-color: " + backgroundColor + "; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px;");
+            }
+        });
     }
+
 
     private void setupTextFieldStyle(TextField textField, double width) {
         textField.setStyle("-fx-text-fill: black; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-alignment: center;");
