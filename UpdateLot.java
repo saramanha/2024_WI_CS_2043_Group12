@@ -60,8 +60,9 @@ public class UpdateLot {
 	 * sends an update to the sql table when parking is updated
 	 * @param dataIn a String array containing 4 rows: id, spot taken status("t" or "f"), plate num, ticket num 
 	 * input plate and ticket num as null with "f" as the second col to reset a spot 
+	 * @return true if successful, false if sql error occurs
 	 */
-	public static void updateLot(String[] dataIn) {
+	public static boolean updateLot(String[] dataIn) {
 		try {
 			UpdateLot data = new UpdateLot();
 			PreparedStatement outStmnt = data.CONNECTION.prepareStatement(data.PUTSTMNT);
@@ -76,9 +77,12 @@ public class UpdateLot {
 			outStmnt.setString(3, dataIn[3]);
 			outStmnt.setInt(4, calculateIdleTime());
 			outStmnt.execute();
+			data.CONNECTION.close();
+			return true;
 		}
 		catch(Exception e) {
 			e.printStackTrace();
+			return false;
 		}
 	}
 	
