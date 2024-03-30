@@ -35,7 +35,7 @@ public class UpdateLot {
 			String[][] stringOut =  new String[40][5];
 			int i = 0;
 			while(rset.next()) {
-				if (i < 41) {
+				if (i < 40) {
 					stringOut[i][0] = rset.getString("spotId");
 					stringOut[i][1] = Boolean.toString(rset.getBoolean("isOccupied"));
 					stringOut[i][2] = rset.getString("vehiclePlate");
@@ -79,11 +79,6 @@ public class UpdateLot {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
-			try {
-				data.CONNECTION.close();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
 		}
 	}
 	
