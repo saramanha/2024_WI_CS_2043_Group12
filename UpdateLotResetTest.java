@@ -7,7 +7,7 @@
 public class UpdateLotResetTest{
 
     public static void main(String[] args){
-        if (UpdateLot.resetSpot(args)) System.out.println("sucessfully deleted all data in spot and set it to empty");
+        if (UpdateLot.resetSpot(args[0])) System.out.println("sucessfully deleted all data in spot and set it to empty");
         else System.out.println("Failed to reset spot, sql error");
         return;
     }
