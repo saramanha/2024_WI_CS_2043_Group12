@@ -11,12 +11,18 @@ import javafx.stage.Stage;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
+import javafx.scene.Node;
+
 
 public class App extends Application {
 
     private TextField durationField;
     private TextField licencePlateField;
     private Button selectedParkingButton = null;
+    final String greenStyle = "-fx-background-color: #689d6a; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;";
+    final String hoveredStyle = "-fx-background-color: #8ec07c; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;";
+    final String selectedStyle = "-fx-background-color: #fe8019; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;";
+    final String purchasedStyle = "-fx-background-color: #928374; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;";
 
     @Override
     public void start(Stage primaryStage) {
@@ -31,38 +37,36 @@ public class App extends Application {
         grid.setVgap(10);
         grid.setAlignment(Pos.CENTER);
 
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 5; col++) {
-                String label = "" + (char)('A' + col) + (row + 1);
-                Button button = new Button(label);
-                button.setStyle("-fx-background-color: #689d6a; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
-                button.setUserData(false);
-                button.setOnMouseEntered(e -> {
-                    if (!(Boolean)button.getUserData()) {
-                        button.setStyle("-fx-background-color: #8ec07c; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
-                    }
-                });
-                button.setOnMouseExited(e -> {
-                    if (!(Boolean)button.getUserData()) {
-                        button.setStyle("-fx-background-color: #689d6a; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
-                    }
-                });
-               button.setOnAction(e -> {
-    if (selectedParkingButton != null) {
-        // If another button was previously selected, keep it grey
-        selectedParkingButton.setStyle("-fx-background-color: #928374; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
-        selectedParkingButton.setUserData(true); // Mark the previously selected button as purchased
-    }
-    // Set the current button to orange
-    button.setStyle("-fx-background-color: #fe8019; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
-    button.setUserData(false); // Mark the current button as available
-    selectedParkingButton = button; // Update the selected button reference
-});
-// To do: Have the button return to green once a vehicle has left that spot <- handleButtonAction
-        
-                grid.add(button, col, row);
-            }
+         for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 5; col++) {
+            String label = "" + (char)('A' + col) + (row + 1);
+            Button button = new Button(label);
+            button.setStyle(greenStyle);
+            button.setUserData(false);
+            button.setOnMouseEntered(e -> {
+                if (!(Boolean)button.getUserData()) {
+                    button.setStyle(hoveredStyle);
+                }
+            });
+            button.setOnMouseExited(e -> {
+                if (!(Boolean)button.getUserData()) {
+                    button.setStyle(greenStyle);
+                }
+            });
+            button.setOnAction(e -> { 
+                if ((Boolean)button.getUserData()) {
+                    // If already selected, deselect
+                    button.setStyle(greenStyle);
+                    button.setUserData(false);
+                } else {
+                    // If not selected, select
+                    button.setStyle(selectedStyle);
+                    button.setUserData(true);
+                }
+            });
+            grid.add(button, col, row);
         }
+    }
 
         HBox durationBox = new HBox(10);
         durationBox.setAlignment(Pos.CENTER);
@@ -108,21 +112,31 @@ public class App extends Application {
         purchaseButton.setOnMouseEntered(e -> purchaseButton.setStyle("-fx-background-color: #83a598; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 15px; -fx-min-width: 180px; -fx-min-height: 60px;"));
         purchaseButton.setOnMouseExited(e -> purchaseButton.setStyle("-fx-background-color: #458588; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 15px; -fx-min-width: 180px; -fx-min-height: 60px;"));
 
-        purchaseButton.setOnAction(e -> {
-            if (selectedParkingButton != null && !durationField.getText().isEmpty() && !licencePlateField.getText().isEmpty()) {
-                selectedParkingButton.setUserData(true); // mark button as purchased
-                selectedParkingButton.setStyle("-fx-background-color: #928374; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px;");
-                durationField.setText("");
-                licencePlateField.setText("");
-            } else {
-                if (durationField.getText().isEmpty()) {
-                    flashTextField(durationField);
-                }
-                if (licencePlateField.getText().isEmpty()) {
-                    flashTextField(licencePlateField);
+       purchaseButton.setOnAction(e -> {
+    if (!durationField.getText().isEmpty() && !licencePlateField.getText().isEmpty()) {
+        // Iterate over all buttons to find selected ones and mark them as purchased
+        for (Node node : grid.getChildren()) {
+            if (node instanceof Button) {
+                Button button = (Button) node;
+                if ((Boolean) button.getUserData()) {
+                    button.setUserData(false); // Mark as not selected
+                    button.setStyle(purchasedStyle); // Change style to purchased
                 }
             }
-        });
+        }
+        // Clear text fields
+        durationField.setText("");
+        licencePlateField.setText("");
+    } else {
+        if (durationField.getText().isEmpty()) {
+            flashTextField(durationField);
+        }
+        if (licencePlateField.getText().isEmpty()) {
+            flashTextField(licencePlateField);
+        }
+    }
+});
+
                
         VBox inputBox = new VBox(10);
         inputBox.setAlignment(Pos.CENTER);
