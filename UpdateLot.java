@@ -15,7 +15,7 @@ public class UpdateLot {
 		private final Statement EXECUTESTMNT; // create statement
 
 	private UpdateLot() throws SQLException{ 
-			CONNECTION = DriverManager.getConnection("jdbc:mysql://cs1103.cs.unb.ca:", "n93gf", "sGBW8PV0");
+			CONNECTION = DriverManager.getConnection("jdbc:mysql://localhost:3306/ParkingLotDB", "testuser", "pass");
 			SELECTSTMNT = "SELECT * from ParkingLot";
 			EXECUTESTMNT = CONNECTION.createStatement();
 			PUTSTMNT = "UPDATE ParkingLot SET isOccupied = ?, vehiclePlate = ?, ticketNum = ?, idleTime = ?"
