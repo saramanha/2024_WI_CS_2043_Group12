@@ -3,3 +3,4 @@ ParkingLotManager.java
 parkingLotRecipe.sql
 Payment.java
 Ticket.java
+Parking/lib/*
