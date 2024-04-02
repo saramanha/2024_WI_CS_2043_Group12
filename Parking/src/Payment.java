@@ -42,6 +42,7 @@ public class Payment {
 
     Problem: rate is $5 per hour after initial 0.5 hour as per proposal
     Solution:
-        Decide if: only allowed increments are by 1 hour except for initial 0.5 hour
-               or: allow a rate of $2.5 per 0.5 hour after initial <- probably better
+        Decide if: only allowed increments (GUI) are by 1 hour except for initial 0.5 hour <- closer to proposal instructions
+               or: allow a rate of $2.5 per 0.5 hour after initial <- easier to implement
+
 */

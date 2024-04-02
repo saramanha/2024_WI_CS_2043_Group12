@@ -1,0 +1,13 @@
+-------------------------- PARKING RECEIPT ------------------------
+ Receipt ID: 1001
+ Parking Spot: C4
+ Licence Plate: knbn
+ Check-In Time: 2024-04-02 11:12
+ Check-Out Time: 2024-04-02 12:12
+ Duration: 1.0 hours
+ Parking Rate: $5 per hour
+ Total Amount Paid: $8
+-------------------------------------------------------------------
+ Thank you for using our Parking Payment System. Have a nice day! 
+-------------------------------------------------------------------
+

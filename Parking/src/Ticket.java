@@ -1,4 +1,5 @@
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Ticket {
     private String spotId;
@@ -29,15 +30,16 @@ public class Ticket {
 
     @Override
     public String toString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         return "-------------------------- PARKING RECEIPT ------------------------" 
              + "\n Receipt ID: " + ticketId
              + "\n Parking Spot: " + spotId
              + "\n Licence Plate: " + licencePlate
-             + "\n Check-In Time: " + checkInTime 
-             + "\n Check-Out Time: " + checkOutTime 
-             + "\n Duration: " + durationInHours + " hours"
-             + "\n Parking Rate: " + (durationInHours <= 0.5 ? "$3 per 30 minutes" : "$5 per hour")
-             + "\n Total Amount Paid: $" + amountPaid 
+             + "\n Check-In Time: " + checkInTime.format(formatter)
+             + "\n Check-Out Time: " + checkOutTime.format(formatter)
+             + "\n Duration: " + (durationInHours <= 0.5 ? "30 minutes" : durationInHours + " hours")
+             + "\n Parking Rate: " + (durationInHours <= 0.5 ? "$3 for 30 minutes" : "$5 per hour")
+             + "\n Total Amount Paid: $" + (int) amountPaid 
              + "\n-------------------------------------------------------------------"
              + "\n Thank you for using our Parking Payment System. Have a nice day! "
              + "\n-------------------------------------------------------------------\n"

@@ -204,6 +204,11 @@ public class App extends Application {
         }));
         timeline.play();
     }
+    
+    private void showInputFields() {
+        selectYourSpotLabel.setVisible(false);
+        inputBox.setVisible(true);
+    }
 
     private void setupButtonStyle(Button button, String backgroundColor) {
         button.setStyle("-fx-background-color: " + backgroundColor + "; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 14px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 5, 0, 0, 1);");
@@ -242,11 +247,6 @@ public class App extends Application {
         );
         timeline.play();
     }      
-
-    private void showInputFields() {
-        selectYourSpotLabel.setVisible(false);
-        inputBox.setVisible(true);
-    }
 
     public static void main(String[] args) {
         launch(args);
