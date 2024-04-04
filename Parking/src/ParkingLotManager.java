@@ -56,5 +56,7 @@ public class ParkingLotManager {
     public static void leaveLot(String spotId){
         App.freeParkingSpot(spotId);
     }
+    
 
+    // To do: private String getSpotIdFromDB(int ticketId){}
 }

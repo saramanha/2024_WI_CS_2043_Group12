@@ -15,8 +15,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -64,20 +62,28 @@ public class App extends Application {
         spacer.setPrefHeight(50);
         secondaryLayout.getChildren().add(spacer);
         
+        HBox leaveBox = new HBox(10);
+        leaveBox.setAlignment(Pos.CENTER);
         spotIdField = new TextField();
         spotIdField.setPromptText("Enter Spot ID");
-        setupTextFieldStyle(spotIdField, 180);
-        secondaryLayout.getChildren().add(spotIdField);
+        setupTextFieldStyle(spotIdField, 110);
+        spotIdField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                spotIdField.setText(newValue.toUpperCase());
+            }
+        });
         
         Button leaveLotButton = new Button("Leave Lot");
         setupButtonStyle(leaveLotButton, "#458588");
         leaveLotButton.setOnAction(e -> {
             String spotId = spotIdField.getText();
             freeParkingSpot(spotId);
+            spotIdField.setText("");
         });
-        secondaryLayout.getChildren().add(leaveLotButton);
+        leaveBox.getChildren().addAll(spotIdField, leaveLotButton);
+        secondaryLayout.getChildren().add(leaveBox);
         
-        Scene secondScene = new Scene(secondaryLayout, 680, 450);
+        Scene secondScene = new Scene(secondaryLayout, 580, 350);
         Stage secondaryStage = new Stage();
         secondaryStage.setTitle("Departure Terminal");
         secondaryStage.setScene(secondScene);
@@ -217,7 +223,7 @@ public class App extends Application {
         purchaseButton.setOnMouseExited(e -> purchaseButton.setStyle("-fx-background-color: #458588; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold'; -fx-font-size: 15px; -fx-min-width: 180px; -fx-min-height: 60px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 5, 0, 0, 1);"));
 
         purchaseButton.setOnAction(e -> {
-            if (selectedParkingButton != null && !licencePlateField.getText().isEmpty() && !durationField.getText().isEmpty()) {
+            if (selectedParkingButton != null && !licencePlateField.getText().isBlank() && !durationField.getText().isEmpty()) {
                 selectedParkingButton.setUserData(ButtonState.PURCHASED);
                 selectedParkingButton.setStyle(purchasedStyle);
 
@@ -243,7 +249,7 @@ public class App extends Application {
                 if (durationField.getText().isEmpty()) {
                     flashTextField(durationField);
                 }
-                if (licencePlateField.getText().isEmpty()) {
+                if (licencePlateField.getText().isBlank()) {
                     flashTextField(licencePlateField);
                 }
             }

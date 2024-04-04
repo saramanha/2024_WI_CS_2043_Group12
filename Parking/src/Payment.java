@@ -33,27 +33,3 @@ public class Payment {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-/*
-    Duration: 1.0 hours
-    Parking Rate: $5 per hour
-    Total Amount Paid: 8.0
-
-    Duration: 1.5 hours
-    Parking Rate: $5 per hour
-    Total Amount Paid: 8.0
-
-    Problem: rate is $5 per hour after initial 0.5 hour as per proposal
-    Solution:
-        Decide if: only allowed increments (GUI) are by 1 hour except for initial 0.5 hour <- closer to proposal instructions
-               or: allow a rate of $2.5 per 0.5 hour after initial <- IMPLEMENTED
-*/
