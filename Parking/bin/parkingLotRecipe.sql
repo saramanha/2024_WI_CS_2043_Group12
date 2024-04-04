@@ -15,3 +15,5 @@ CREATE TABLE ParkingLot(
 CREATE USER 'testuser'@'localhost' IDENTIFIED BY 'pass';
 GRANT ALL PRIVILEGES ON ParkingLotDB.* TO 'testuser'@'localhost';
 FLUSH PRIVILEGES;
+
+TRUNCATE TABLE ParkingLot; -- to clear table

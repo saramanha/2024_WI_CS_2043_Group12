@@ -1,8 +1,6 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-//import java.sql.Statement;
-//import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -12,18 +10,14 @@ import java.io.FileNotFoundException;
 public class ParkingLotManager {
     
     private final Connection CONNECTION; 
-    //private final String SELECTSTMNT; // the query to db
     private final String PUTSTMNT;
-    //private final Statement EXECUTESTMNT; // create statement
 
     public ParkingLotManager() throws SQLException{ 
-        //CONNECTION = DriverManager.getConnection("jdbc:mysql://cs1103.cs.unb.ca:", "n93gf", "");
         CONNECTION = DriverManager.getConnection("jdbc:mysql://localhost:3306/ParkingLotDB", "testuser", "pass");
-        //SELECTSTMNT = "SELECT * from ParkingLot";
-        //EXECUTESTMNT = CONNECTION.createStatement();
         PUTSTMNT = "UPDATE ParkingLot SET isOccupied = ?, vehiclePlate = ?, ticketId = ?, checkInTime = ?, checkOutTime = ?, durationInHours = ? WHERE spotID = ?";
     }
 
+    // this could be changed to return void
     public Ticket parkVehicle(String spotId, String licencePlate, double durationInHours) throws SQLException {
         // Create a new ticket
         LocalDateTime checkInTime = LocalDateTime.now();
@@ -59,9 +53,8 @@ public class ParkingLotManager {
         }
     }
     
-    // To do: 
-    /* public lateFeeTicket removeVehicle(Ticket ticket) {
-        
-    }*/
+    public static void leaveLot(String spotId){
+        App.freeParkingSpot(spotId);
+    }
 
 }

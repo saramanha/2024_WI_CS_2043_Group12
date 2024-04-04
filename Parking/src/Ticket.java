@@ -25,9 +25,6 @@ public class Ticket {
         return ticketId;
     }
 
-    // To do:
-    /* public lateFeeTicket */
-
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");

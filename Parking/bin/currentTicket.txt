@@ -1,9 +1,9 @@
 -------------------------- PARKING RECEIPT ------------------------
- Receipt ID: 1001
- Parking Spot: C4
- Licence Plate: knbn
- Check-In Time: 2024-04-02 11:12
- Check-Out Time: 2024-04-02 12:12
+ Receipt ID: 1000
+ Parking Spot: C6
+ Licence Plate: ASDF
+ Check-In Time: 2024-04-04 18:05
+ Check-Out Time: 2024-04-04 19:05
  Duration: 1.0 hours
  Parking Rate: $5 per hour
  Total Amount Paid: $8
