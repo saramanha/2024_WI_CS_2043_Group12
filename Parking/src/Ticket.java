@@ -15,7 +15,8 @@ public class Ticket {
         this.spotId = spotId;
         this.licencePlate = licencePlate;
         this.checkInTime = checkInTime;
-        this.checkOutTime = checkInTime.plusMinutes((long)(60*durationInHours));
+        //this.checkOutTime = checkInTime.plusMinutes((long)(60*durationInHours));
+        this.checkOutTime = checkInTime.plusSeconds((long)(60*durationInHours));
         this.amountPaid = Payment.calculatePayment(checkInTime, checkOutTime);
         this.durationInHours = durationInHours;
         this.ticketId = ++ticketIdCounter;
@@ -27,7 +28,8 @@ public class Ticket {
 
     @Override
     public String toString() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return "-------------------------- PARKING RECEIPT ------------------------" 
              + "\n Receipt ID: " + ticketId
              + "\n Parking Spot: " + spotId
@@ -35,8 +37,8 @@ public class Ticket {
              + "\n Check-In Time: " + checkInTime.format(formatter)
              + "\n Check-Out Time: " + checkOutTime.format(formatter)
              + "\n Duration: " + (durationInHours <= 0.5 ? "30 minutes" : durationInHours + " hours")
-             + "\n Parking Rate: " + (durationInHours <= 0.5 ? "$3 for 30 minutes" : "$5 per hour")
-             + "\n Total Amount Paid: $" + (int) amountPaid 
+             + "\n Parking Rate: " + (durationInHours <= 0.5 ? "$3 for 30 minutes" : "$5 per hour + initial $3 for 30 minutes")
+             + "\n Total Amount Paid: $" + String.format("%.2f", amountPaid)
              + "\n-------------------------------------------------------------------"
              + "\n Thank you for using our Parking Payment System. Have a nice day! "
              + "\n-------------------------------------------------------------------\n"

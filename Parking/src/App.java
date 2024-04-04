@@ -15,11 +15,17 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 import java.util.Map;
 import java.util.HashMap;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import javafx.scene.layout.Region;
 
 public class App extends Application {
     
@@ -27,6 +33,7 @@ public class App extends Application {
     private TextField durationField;
     private TextField licencePlateField;
     private TextField spotIdField;
+    private Label timeLabel;
     private Button selectedParkingButton = null;
     public enum ButtonState {
         DEFAULT, SELECTED, PURCHASED
@@ -47,32 +54,44 @@ public class App extends Application {
         VBox secondaryLayout = new VBox(10);
         secondaryLayout.setAlignment(Pos.CENTER);
         secondaryLayout.setStyle("-fx-background-color: #fbf1c7;");
+        timeLabel = new Label();
+        timeLabel.setFont(Font.font("Arial Black", FontWeight.BLACK, 25));
+        timeLabel.setTextFill(Color.web("#1d2021"));
+        updateTime();
+        secondaryLayout.getChildren().add(timeLabel);
+        
+        Region spacer = new Region();
+        spacer.setPrefHeight(50);
+        secondaryLayout.getChildren().add(spacer);
+        
         spotIdField = new TextField();
         spotIdField.setPromptText("Enter Spot ID");
         setupTextFieldStyle(spotIdField, 180);
-        spotIdField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                spotIdField.setText(newValue.toUpperCase());
-            }
-        });
-            
+        secondaryLayout.getChildren().add(spotIdField);
+        
         Button leaveLotButton = new Button("Leave Lot");
         setupButtonStyle(leaveLotButton, "#458588");
         leaveLotButton.setOnAction(e -> {
             String spotId = spotIdField.getText();
             freeParkingSpot(spotId);
-            spotIdField.setText("");
         });
-            
-        secondaryLayout.getChildren().addAll(spotIdField, leaveLotButton);
-            
+        secondaryLayout.getChildren().add(leaveLotButton);
+        
         Scene secondScene = new Scene(secondaryLayout, 680, 450);
-            
         Stage secondaryStage = new Stage();
         secondaryStage.setTitle("Departure Terminal");
         secondaryStage.setScene(secondScene);
         secondaryStage.show();
-    }      
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> updateTime()));
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
+    }  
+    private void updateTime() {
+        LocalDateTime currentTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        String formattedTime = currentTime.format(formatter);
+        timeLabel.setText(formattedTime);
+    }  
              
     @Override
     public void start(Stage primaryStage) {
