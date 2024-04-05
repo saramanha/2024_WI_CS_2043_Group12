@@ -30,7 +30,7 @@ public class App extends Application {
     private Label selectYourSpotLabel;
     private TextField durationField;
     private TextField licencePlateField;
-    private TextField spotIdField;
+    private TextField ticketIdField;
     private Label timeLabel;
     private Button selectedParkingButton = null;
     public enum ButtonState {
@@ -38,6 +38,14 @@ public class App extends Application {
     }
     private static Map<String, Button> parkingSpots = new HashMap<>();
     private VBox inputBox;
+    private ParkingLotManager parkingLotManager;
+    private void initializeParkingLotManager() {
+        try {
+            this.parkingLotManager = new ParkingLotManager();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
     
     final static String greenStyle = "-fx-background-color: #689d6a; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold';"
             + "-fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0.1, 0, 3);";
@@ -48,7 +56,15 @@ public class App extends Application {
     final static String purchasedStyle = "-fx-background-color: #a89984; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold';"
             + "-fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px; -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.7), 5, 0.0, 2, 2);";
 
+
+    Label thankYouLabel = new Label("THANK YOU!");
+    Label additionalChargeLabel = new Label();
+    Button payLateFeeButton = new Button("Pay Late Fee");
     private void showSecondaryStage() {
+        // THIS IS SO MESSY! To do: clean up/organize showSecondaryStage()
+        thankYouLabel.setVisible(false);
+        additionalChargeLabel.setVisible(false);
+        payLateFeeButton.setVisible(false);
         VBox secondaryLayout = new VBox(10);
         secondaryLayout.setAlignment(Pos.CENTER);
         secondaryLayout.setStyle("-fx-background-color: #fbf1c7;");
@@ -64,25 +80,68 @@ public class App extends Application {
         
         HBox leaveBox = new HBox(10);
         leaveBox.setAlignment(Pos.CENTER);
-        spotIdField = new TextField();
-        spotIdField.setPromptText("Enter Spot ID");
-        setupTextFieldStyle(spotIdField, 110);
-        spotIdField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                spotIdField.setText(newValue.toUpperCase());
+        ticketIdField = new TextField();
+        ticketIdField.setPromptText("Enter Ticket ID");
+        setupTextFieldStyle(ticketIdField, 120);
+        ticketIdField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.matches("\\d*")) {
+                ticketIdField.setText(oldValue);
             }
         });
-        
+
         Button leaveLotButton = new Button("Leave Lot");
         setupButtonStyle(leaveLotButton, "#458588");
         leaveLotButton.setOnAction(e -> {
-            String spotId = spotIdField.getText();
-            freeParkingSpot(spotId);
-            spotIdField.setText("");
+            // Calculate additional charges
+            int ticketId = Integer.parseInt(ticketIdField.getText());
+            String leavingSpotId = null;
+            LocalDateTime checkOutTime = null;
+            LocalDateTime actualCheckOutTime = LocalDateTime.now();
+            try {
+                leavingSpotId = parkingLotManager.getSpotIdFromDB(ticketId);
+                checkOutTime = parkingLotManager.getCheckOutTimeFromDB(ticketId);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            double additionalCharge = Payment.calculateAdditionalCharges(checkOutTime, actualCheckOutTime);
+            if (additionalCharge == 0.0) {
+                Platform.runLater(() -> {
+                    thankYouLabel.setVisible(true);
+                    Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2), eee -> {
+                        thankYouLabel.setVisible(false);
+                    }));
+                    timeline.play();
+                });
+                try { parkingLotManager.setSpotAsEmpty(ticketId, actualCheckOutTime);} 
+                catch (SQLException ex) {ex.printStackTrace();}
+            } else {
+                Platform.runLater(() -> {
+                    thankYouLabel.setVisible(false);
+                    additionalChargeLabel.setText("Late Fee: $" + additionalCharge);
+                    additionalChargeLabel.setVisible(true);
+                    payLateFeeButton.setVisible(true);
+                });
+                payLateFeeButton.setOnAction(ee -> {
+                    try { parkingLotManager.setSpotAsEmpty(ticketId, actualCheckOutTime);}
+                    catch (SQLException ex) {ex.printStackTrace();}
+                    Platform.runLater(() -> {
+                        thankYouLabel.setVisible(true);
+                        additionalChargeLabel.setVisible(false);
+                        payLateFeeButton.setVisible(false);
+                        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2), eee -> {
+                            thankYouLabel.setVisible(false);
+                        }));
+                        timeline.play();
+                    });
+                });   
+            }
+            freeParkingSpot(leavingSpotId);
+            ticketIdField.setText("");
         });
-        leaveBox.getChildren().addAll(spotIdField, leaveLotButton);
+        leaveBox.getChildren().addAll(ticketIdField, leaveLotButton);
         secondaryLayout.getChildren().add(leaveBox);
-        
+        secondaryLayout.getChildren().addAll(thankYouLabel, additionalChargeLabel, payLateFeeButton);
+
         Scene secondScene = new Scene(secondaryLayout, 580, 350);
         Stage secondaryStage = new Stage();
         secondaryStage.setTitle("Departure Terminal");
@@ -101,6 +160,8 @@ public class App extends Application {
              
     @Override
     public void start(Stage primaryStage) {
+        initializeParkingLotManager();
+
         VBox root = new VBox(43);
         root.setPadding(new Insets(40));
         root.setAlignment(Pos.TOP_CENTER);
@@ -126,7 +187,6 @@ public class App extends Application {
         primaryStage.setTitle("Parking Lot Terminal");
         primaryStage.setScene(scene);
         primaryStage.show();
-
         showSecondaryStage();
     }
 
@@ -228,16 +288,11 @@ public class App extends Application {
                 selectedParkingButton.setStyle(purchasedStyle);
 
                 // Parking Lot Manager Parks Vehicle!
-                ParkingLotManager parkingLotManager = null;
-                try {
-                    parkingLotManager = new ParkingLotManager();
-                } catch (SQLException error) {
-                    error.printStackTrace();
-                }
                 if (parkingLotManager != null) {
                     try {
                         parkingLotManager.parkVehicle(selectedParkingButton.getText(), licencePlateField.getText(), Double.parseDouble(durationField.getText()));
                     } catch (SQLException error) {
+                        System.out.println("FAILED TO PARK VEHICLE FROM PURCHASE BUTTON");
                         error.printStackTrace();
                     }
                 }

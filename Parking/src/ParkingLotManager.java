@@ -1,6 +1,7 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -8,18 +9,25 @@ import java.io.PrintWriter;
 import java.io.FileNotFoundException;
 
 public class ParkingLotManager {
+    // You must clear table (see parkingLotRecipe) before starting <- to do: fix by looking up last/largest ticketId in DB first
     
     private final Connection CONNECTION; 
-    private final String PUTSTMNT;
+    private final String INSERT_STMT;
+    private final String GET_CHECKOUT_TIME_STMNT;
+    private final String GET_SPOT_ID_STMT;
+    private final String SET_SPOT_EMPTY_STMT;
 
     public ParkingLotManager() throws SQLException{ 
         CONNECTION = DriverManager.getConnection("jdbc:mysql://localhost:3306/ParkingLotDB", "testuser", "pass");
-        PUTSTMNT = "UPDATE ParkingLot SET isOccupied = ?, vehiclePlate = ?, ticketId = ?, checkInTime = ?, checkOutTime = ?, durationInHours = ? WHERE spotID = ?";
+        INSERT_STMT = "INSERT INTO ParkingLot (ticketId, spotID, isOccupied, vehiclePlate, checkInTime, checkOutTime, actualCheckOutTime) VALUES (?, ?, ?, ?, ?, ?, NULL);";
+        GET_CHECKOUT_TIME_STMNT = "SELECT checkOutTime FROM ParkingLot WHERE ticketId = ?";
+        GET_SPOT_ID_STMT = "SELECT spotID FROM ParkingLot WHERE ticketId = ?";
+        SET_SPOT_EMPTY_STMT = "UPDATE ParkingLot SET isOccupied = false, actualCheckOutTime = ? WHERE ticketId = ?";
     }
 
     // this could be changed to return void
     public Ticket parkVehicle(String spotId, String licencePlate, double durationInHours) throws SQLException {
-        // Create a new ticket
+        // Create a new ticket for customer
         LocalDateTime checkInTime = LocalDateTime.now();
         Ticket ticket = new Ticket(spotId, licencePlate, checkInTime, durationInHours);
         try {
@@ -30,33 +38,61 @@ public class ParkingLotManager {
             System.out.println("An error occurred while trying to write to /bin/currentTicket.txt");
             e.printStackTrace();
         }
-        // Send some ticket info to database
-        try {
-            PreparedStatement outStmnt = this.CONNECTION.prepareStatement(this.PUTSTMNT);
-            LocalDateTime checkOutTime = checkInTime.plusHours((long) durationInHours);
-        
-            outStmnt.setBoolean(1, true);
-            outStmnt.setString(2, licencePlate);
-            outStmnt.setInt(3, ticket.getTicketId());
-            outStmnt.setTimestamp(4, Timestamp.valueOf(checkInTime));
-            outStmnt.setTimestamp(5, Timestamp.valueOf(checkOutTime));
-            outStmnt.setDouble(6, durationInHours);
-            outStmnt.setString(7, spotId);
-            
+        try { // Send some ticket info to database
+            PreparedStatement outStmnt = this.CONNECTION.prepareStatement(this.INSERT_STMT);
+            //LocalDateTime checkOutTime = checkInTime.plusHours((long) durationInHours);
+            LocalDateTime checkOutTime = checkInTime.plusSeconds((long)(60*durationInHours));
+            outStmnt.setInt(1, ticket.getTicketId());
+            outStmnt.setString(2, spotId);
+            outStmnt.setBoolean(3, true);
+            outStmnt.setString(4, licencePlate);
+            outStmnt.setTimestamp(5, Timestamp.valueOf(checkInTime));
+            outStmnt.setTimestamp(6, Timestamp.valueOf(checkOutTime));
+             
             outStmnt.executeUpdate();
-            
             return ticket;
-        }
-        catch(SQLException e) {
+        } catch(SQLException e) {
             e.printStackTrace();
             return null;
         }
     }
     
-    public static void leaveLot(String spotId){
-        App.freeParkingSpot(spotId);
+    public LocalDateTime getCheckOutTimeFromDB(int ticketId) throws SQLException {
+        try (PreparedStatement stmt = CONNECTION.prepareStatement(GET_CHECKOUT_TIME_STMNT)) {
+            stmt.setInt(1, ticketId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getTimestamp("checkOutTime").toLocalDateTime();
+                } else {
+                    throw new SQLException("No record found for ticketId: " + ticketId);
+                }
+            }
+        }
+    } 
+    public String getSpotIdFromDB(int ticketId) throws SQLException {
+        try (PreparedStatement stmt = CONNECTION.prepareStatement(GET_SPOT_ID_STMT)) {
+            stmt.setInt(1, ticketId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("spotID");
+                } else {
+                    throw new SQLException("No record found for ticketId: " + ticketId);
+                }
+            }
+        }
     }
-    
+    public void setSpotAsEmpty(int ticketId, LocalDateTime actualCheckOutTime) throws SQLException {
+        try (PreparedStatement stmt = CONNECTION.prepareStatement(SET_SPOT_EMPTY_STMT)) {
+            stmt.setTimestamp(1, Timestamp.valueOf(actualCheckOutTime));
+            stmt.setInt(2, ticketId);
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Updating spot status and checkout time failed, no rows affected for ticketId: " + ticketId);
+            }
+        }
+    }
 
-    // To do: private String getSpotIdFromDB(int ticketId){}
+    /* public static void leaveLot(String spotId){
+        App.freeParkingSpot(spotId);
+    }*/
 }

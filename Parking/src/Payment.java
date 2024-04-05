@@ -24,12 +24,21 @@ public class Payment {
         final double hourlyLateCharge = 10.0;
         //long additionalDurationInMinutes = ChronoUnit.MINUTES.between(plannedCheckOutTime, actualCheckOutTime);
         long additionalDurationInMinutes = ChronoUnit.SECONDS.between(plannedCheckOutTime, actualCheckOutTime);
+        double fee;
 
         if (additionalDurationInMinutes <= 0) {
-            return 0;
+            return 0.0;
+        } else if (additionalDurationInMinutes <= 60) {
+            fee = initialLateCharge;
+        } else {
+            fee = initialLateCharge + Math.ceil(additionalDurationInMinutes / 60.0) * hourlyLateCharge;
         }
-
-        return initialLateCharge + Math.ceil(additionalDurationInMinutes / 60.0) * hourlyLateCharge;
+        return fee;
     }
 }
+
+/*  If the intent was for the $5 to be a flat charge for any late duration up to the first hour, 
+    and $10 for each hour thereafter (without charging the initial $5 again for the first hour past 60 minutes), 
+    then the calculation would be slightly off. Same goes for calculatePayment()
+*/
 

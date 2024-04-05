@@ -3,13 +3,13 @@ CREATE DATABASE ParkingLotDB;
 USE ParkingLotDB;
 
 CREATE TABLE ParkingLot(
-  spotID varchar(2) UNIQUE PRIMARY KEY,
+  ticketId INT UNIQUE PRIMARY KEY,
+  spotID varchar(2),
   isOccupied BOOLEAN NOT NULL,
-  vehiclePlate varchar(7) UNIQUE,
-  ticketId INT UNIQUE,
+  vehiclePlate varchar(7),
   checkInTime DATETIME,
   checkOutTime DATETIME,
-  durationInHours DOUBLE
+  actualCheckOutTime DATETIME
 );
 
 CREATE USER 'testuser'@'localhost' IDENTIFIED BY 'pass';
