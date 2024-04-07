@@ -7,8 +7,9 @@ public class Ticket {
     private LocalDateTime checkOutTime;
     private double durationInHours;
     private double amountPaid;
-    private static int ticketIdCounter = 999;
+    private static int ticketIdCounter;
     private int ticketId;
+
     private String licencePlate;
 
     public Ticket(String spotId, String licencePlate, LocalDateTime checkInTime, double durationInHours) {
@@ -26,12 +27,16 @@ public class Ticket {
         return ticketId;
     }
 
+    public static void setTicketIdCounter(int counter) {
+        ticketIdCounter = counter;
+    }
+
     @Override
     public String toString() {
         //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return "-------------------------- PARKING RECEIPT ------------------------" 
-             + "\n Receipt ID: " + ticketId
+        return "------------------------- PARKING RECEIPT -----------------------" 
+             + "\n Ticket ID: " + ticketId
              + "\n Parking Spot: " + spotId
              + "\n Licence Plate: " + licencePlate
              + "\n Check-In Time: " + checkInTime.format(formatter)
@@ -39,9 +44,9 @@ public class Ticket {
              + "\n Duration: " + (durationInHours <= 0.5 ? "30 minutes" : durationInHours + " hours")
              + "\n Parking Rate: " + (durationInHours <= 0.5 ? "$3 for 30 minutes" : "$5 per hour + initial $3 for 30 minutes")
              + "\n Total Amount Paid: $" + String.format("%.2f", amountPaid)
-             + "\n-------------------------------------------------------------------"
+             + "\n-----------------------------------------------------------------"
              + "\n Thank you for using our Parking Payment System. Have a nice day! "
-             + "\n-------------------------------------------------------------------\n"
+             + "\n-----------------------------------------------------------------\n"
             ;
     }
 }

@@ -9,8 +9,6 @@ import java.io.PrintWriter;
 import java.io.FileNotFoundException;
 
 public class ParkingLotManager {
-    // You must clear table (see parkingLotRecipe) before starting <- to do: fix by looking up last/largest ticketId in DB first
-    
     private final Connection CONNECTION; 
     private final String INSERT_STMT;
     private final String GET_CHECKOUT_TIME_STMNT;
@@ -92,7 +90,28 @@ public class ParkingLotManager {
         }
     }
 
-    /* public static void leaveLot(String spotId){
-        App.freeParkingSpot(spotId);
-    }*/
+    
+    public void initializeLot() throws SQLException {
+        final String GET_HIGHEST_TICKET_ID = "SELECT MAX(ticketId) AS highestTicketId FROM ParkingLot";
+        try (PreparedStatement stmt = CONNECTION.prepareStatement(GET_HIGHEST_TICKET_ID)) {
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int highestTicketId = rs.getInt("highestTicketId");
+                if (rs.wasNull()) {
+                    Ticket.setTicketIdCounter(999);
+                } else {
+                    Ticket.setTicketIdCounter(highestTicketId);
+                }
+            }
+        }
+        final String GET_OCCUPIED_SPOT_IDS = "SELECT spotID FROM ParkingLot WHERE isOccupied = true";
+        try (PreparedStatement stmt = CONNECTION.prepareStatement(GET_OCCUPIED_SPOT_IDS)) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                String spotId = rs.getString("spotID");
+                App.markButtonAsPurchased(spotId);
+            }
+        }
+    }
 }
+

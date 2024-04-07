@@ -1,13 +1,13 @@
--------------------------- PARKING RECEIPT ------------------------
- Receipt ID: 1003
- Parking Spot: B4
+------------------------- PARKING RECEIPT -----------------------
+ Ticket ID: 1008
+ Parking Spot: C6
  Licence Plate: ASDF
- Check-In Time: 2024-04-05 01:39:11
- Check-Out Time: 2024-04-05 01:41:11
- Duration: 2.0 hours
- Parking Rate: $5 per hour + initial $3 for 30 minutes
- Total Amount Paid: $10.50
--------------------------------------------------------------------
+ Check-In Time: 2024-04-07 01:55:57
+ Check-Out Time: 2024-04-07 01:56:27
+ Duration: 30 minutes
+ Parking Rate: $3 for 30 minutes
+ Total Amount Paid: $3.00
+-----------------------------------------------------------------
  Thank you for using our Parking Payment System. Have a nice day! 
--------------------------------------------------------------------
+-----------------------------------------------------------------
 

@@ -14,6 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.stage.Screen;
 import java.sql.SQLException;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -23,10 +24,24 @@ import java.util.Map;
 import java.util.HashMap;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import javafx.scene.layout.Region;
+import javafx.geometry.Rectangle2D;
 
 public class App extends Application {
     
+    /*
+     * To Do: 
+     * take demo video
+     * 
+     * do not allow overnight parking
+     * 
+     * DEPARTURE TERMINAL
+     *     duplicate licence plates are accepted, they shouldn't be as per proposal
+     *     incorrectly accepts ticketId that corresponds to a spotId where isOccupied is false
+     * 
+     */
+
     private Label selectYourSpotLabel;
     private TextField durationField;
     private TextField licencePlateField;
@@ -47,7 +62,7 @@ public class App extends Application {
         }
     }
     
-    final static String greenStyle = "-fx-background-color: #689d6a; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold';"
+    final static String defaultStyle = "-fx-background-color: #689d6a; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold';"
             + "-fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0.1, 0, 3);";
     final static String hoveredStyle = "-fx-background-color: #8ec07c; -fx-text-fill: white; -fx-font-family: 'Arial Rounded MT Bold';"
             + "-fx-font-size: 14px; -fx-min-width: 68px; -fx-min-height: 42px; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 10, 0.1, 0, 3);";
@@ -59,12 +74,20 @@ public class App extends Application {
 
     Label thankYouLabel = new Label("THANK YOU!");
     Label additionalChargeLabel = new Label();
+    Label hoursLateLabel = new Label();
     Button payLateFeeButton = new Button("Pay Late Fee");
     private void showSecondaryStage() {
-        // THIS IS SO MESSY! To do: clean up/organize showSecondaryStage()
         thankYouLabel.setVisible(false);
+        thankYouLabel.setFont(Font.font("Arial Black", FontWeight.BLACK, 25));
+        thankYouLabel.setTextFill(Color.web("#1d2021"));
         additionalChargeLabel.setVisible(false);
+        hoursLateLabel.setVisible(false);
+        additionalChargeLabel.setFont(Font.font("Arial Black", FontWeight.BLACK, 15));
+        hoursLateLabel.setFont(Font.font("Arial Black", FontWeight.BLACK, 15));
+        additionalChargeLabel.setTextFill(Color.web("#1d2021"));
+        hoursLateLabel.setTextFill(Color.web("#1d2021"));
         payLateFeeButton.setVisible(false);
+        setupButtonStyle(payLateFeeButton, "#458588");
         VBox secondaryLayout = new VBox(10);
         secondaryLayout.setAlignment(Pos.CENTER);
         secondaryLayout.setStyle("-fx-background-color: #fbf1c7;");
@@ -75,7 +98,7 @@ public class App extends Application {
         secondaryLayout.getChildren().add(timeLabel);
         
         Region spacer = new Region();
-        spacer.setPrefHeight(50);
+        spacer.setPrefHeight(10);
         secondaryLayout.getChildren().add(spacer);
         
         HBox leaveBox = new HBox(10);
@@ -92,61 +115,78 @@ public class App extends Application {
         Button leaveLotButton = new Button("Leave Lot");
         setupButtonStyle(leaveLotButton, "#458588");
         leaveLotButton.setOnAction(e -> {
-            // Calculate additional charges
             int ticketId = Integer.parseInt(ticketIdField.getText());
-            String leavingSpotId = null;
-            LocalDateTime checkOutTime = null;
             LocalDateTime actualCheckOutTime = LocalDateTime.now();
+
             try {
-                leavingSpotId = parkingLotManager.getSpotIdFromDB(ticketId);
-                checkOutTime = parkingLotManager.getCheckOutTimeFromDB(ticketId);
+                final String leavingSpotId = parkingLotManager.getSpotIdFromDB(ticketId);
+                final LocalDateTime currentTime = LocalDateTime.now();
+                final LocalDateTime checkOutTime = parkingLotManager.getCheckOutTimeFromDB(ticketId);
+                //final long minutesLate = ChronoUnit.MINUTES.between(checkOutTime, currentTime);
+                final long totalSecondsLate = ChronoUnit.SECONDS.between(checkOutTime, currentTime);
+                long minutesLate = totalSecondsLate / 60;
+                long remainingSeconds = totalSecondsLate % 60;
+
+                double additionalCharge = Payment.calculateAdditionalCharges(checkOutTime, actualCheckOutTime);
+                if (additionalCharge == 0.0) {
+                    Platform.runLater(() -> {
+                        thankYouLabel.setVisible(true);
+                        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2), eee -> thankYouLabel.setVisible(false)));
+                        timeline.play();
+                        markButtonAsDefault(leavingSpotId);
+                        ticketIdField.setText("");
+                    });
+                    parkingLotManager.setSpotAsEmpty(ticketId, actualCheckOutTime);
+                } else {
+                    Platform.runLater(() -> {
+                        thankYouLabel.setVisible(false);
+                        additionalChargeLabel.setText("Late Fee: $" + additionalCharge);
+                        if (minutesLate < 1) {
+                            hoursLateLabel.setText(remainingSeconds + " minutes late");
+                        } else if (minutesLate == 1) {
+                            hoursLateLabel.setText(minutesLate + " hour " + remainingSeconds + " minutes late");
+                        } else {
+                            hoursLateLabel.setText(minutesLate + " hours " + remainingSeconds + " minutes late");
+                        }
+                        additionalChargeLabel.setVisible(true);
+                        hoursLateLabel.setVisible(true);
+                        payLateFeeButton.setVisible(true);
+                    });
+                    payLateFeeButton.setOnAction(ee -> {
+                        try {parkingLotManager.setSpotAsEmpty(ticketId, actualCheckOutTime);}
+                        catch (SQLException error) {error.printStackTrace();}
+                        Platform.runLater(() -> {
+                            thankYouLabel.setVisible(true);
+                            additionalChargeLabel.setVisible(false);
+                            hoursLateLabel.setVisible(false);
+                            payLateFeeButton.setVisible(false);
+                            Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2), eee -> thankYouLabel.setVisible(false)));
+                            timeline.play();
+                            markButtonAsDefault(leavingSpotId);
+                            ticketIdField.setText("");
+                        });
+                    });
+                }
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-            double additionalCharge = Payment.calculateAdditionalCharges(checkOutTime, actualCheckOutTime);
-            if (additionalCharge == 0.0) {
-                Platform.runLater(() -> {
-                    thankYouLabel.setVisible(true);
-                    Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2), eee -> {
-                        thankYouLabel.setVisible(false);
-                    }));
-                    timeline.play();
-                });
-                try { parkingLotManager.setSpotAsEmpty(ticketId, actualCheckOutTime);} 
-                catch (SQLException ex) {ex.printStackTrace();}
-            } else {
-                Platform.runLater(() -> {
-                    thankYouLabel.setVisible(false);
-                    additionalChargeLabel.setText("Late Fee: $" + additionalCharge);
-                    additionalChargeLabel.setVisible(true);
-                    payLateFeeButton.setVisible(true);
-                });
-                payLateFeeButton.setOnAction(ee -> {
-                    try { parkingLotManager.setSpotAsEmpty(ticketId, actualCheckOutTime);}
-                    catch (SQLException ex) {ex.printStackTrace();}
-                    Platform.runLater(() -> {
-                        thankYouLabel.setVisible(true);
-                        additionalChargeLabel.setVisible(false);
-                        payLateFeeButton.setVisible(false);
-                        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2), eee -> {
-                            thankYouLabel.setVisible(false);
-                        }));
-                        timeline.play();
-                    });
-                });   
-            }
-            freeParkingSpot(leavingSpotId);
-            ticketIdField.setText("");
         });
         leaveBox.getChildren().addAll(ticketIdField, leaveLotButton);
         secondaryLayout.getChildren().add(leaveBox);
-        secondaryLayout.getChildren().addAll(thankYouLabel, additionalChargeLabel, payLateFeeButton);
+        secondaryLayout.getChildren().addAll(thankYouLabel, additionalChargeLabel, hoursLateLabel, payLateFeeButton);
 
-        Scene secondScene = new Scene(secondaryLayout, 580, 350);
+        Scene secondScene = new Scene(secondaryLayout, 380, 280);
         Stage secondaryStage = new Stage();
         secondaryStage.setTitle("Departure Terminal");
         secondaryStage.setScene(secondScene);
         secondaryStage.show();
+
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        double secondaryStageX = screenBounds.getWidth() - secondScene.getWidth() - 10;
+        double secondaryStageY = 30;
+        secondaryStage.setX(secondaryStageX);
+        secondaryStage.setY(secondaryStageY);
+
         Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> updateTime()));
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
@@ -184,9 +224,19 @@ public class App extends Application {
         root.getChildren().add(overlayPane);
 
         Scene scene = new Scene(root, 450, 680);
-        primaryStage.setTitle("Parking Lot Terminal");
+        primaryStage.setTitle("Entrance Terminal");
         primaryStage.setScene(scene);
+
         primaryStage.show();
+
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+        double primaryStageY = (screenBounds.getHeight() - scene.getHeight()) / 2;
+
+        primaryStage.setX(10);
+        primaryStage.setY(primaryStageY);
+
+        try {parkingLotManager.initializeLot();}
+        catch (SQLException error) {error.printStackTrace();}
         showSecondaryStage();
     }
 
@@ -200,7 +250,7 @@ public class App extends Application {
             for (int col = 0; col < 5; col++) {
                 String spotId = "" + (char)('A' + col) + (row + 1);
                 Button button = new Button(spotId);
-                button.setStyle(greenStyle);
+                button.setStyle(defaultStyle);
                 button.setUserData(ButtonState.DEFAULT);
 
                 button.setOnMouseEntered(e -> {
@@ -210,13 +260,13 @@ public class App extends Application {
                 });
                 button.setOnMouseExited(e -> {
                     if (button.getUserData() == ButtonState.DEFAULT) {
-                        button.setStyle(greenStyle);
+                        button.setStyle(defaultStyle);
                     }
                 });
                 button.setOnAction(e -> {
                     if (button.getUserData() != ButtonState.PURCHASED) {
                         if (selectedParkingButton != null && selectedParkingButton.getUserData() == ButtonState.SELECTED) {
-                            selectedParkingButton.setStyle(greenStyle);
+                            selectedParkingButton.setStyle(defaultStyle);
                             selectedParkingButton.setUserData(ButtonState.DEFAULT);
                         }
                         button.setStyle(selectedStyle);
@@ -368,13 +418,23 @@ public class App extends Application {
         timeline.play();
     }      
 
-    public static void freeParkingSpot(String spotId) {
+    public static void markButtonAsDefault(String spotId) {
         Platform.runLater(() -> {
             Button spotButton = parkingSpots.get(spotId);
             if (spotButton != null) {
-                spotButton.setStyle(greenStyle);
+                spotButton.setStyle(defaultStyle);
                 spotButton.setUserData(ButtonState.DEFAULT);
             }
+        });
+    }
+
+    public static void markButtonAsPurchased(String spotId) {
+        Platform.runLater(() -> {
+            Button spotButton = parkingSpots.get(spotId);
+            //if (spotButton != null) {
+                spotButton.setStyle(purchasedStyle);
+                spotButton.setUserData(ButtonState.PURCHASED);
+            //}
         });
     }
     
