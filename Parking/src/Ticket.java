@@ -41,7 +41,7 @@ public class Ticket {
              + "\n Licence Plate: " + licencePlate
              + "\n Check-In Time: " + checkInTime.format(formatter)
              + "\n Check-Out Time: " + checkOutTime.format(formatter)
-             + "\n Duration: " + (durationInHours <= 0.5 ? "30 minutes" : durationInHours + " hours")
+             + "\n Duration: " + (durationInHours <= 0.5 ? "30 minutes" : durationInHours + (durationInHours == 1 ? " hour" : " hours"))
              + "\n Parking Rate: " + (durationInHours <= 0.5 ? "$3 for 30 minutes" : "$5 per hour + initial $3 for 30 minutes")
              + "\n Total Amount Paid: $" + String.format("%.2f", amountPaid)
              + "\n-----------------------------------------------------------------"

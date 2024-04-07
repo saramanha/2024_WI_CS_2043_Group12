@@ -31,7 +31,7 @@ public class Payment {
         } else if (additionalDurationInMinutes <= 60) {
             fee = initialLateCharge;
         } else {
-            fee = initialLateCharge + Math.ceil(additionalDurationInMinutes / 60.0) * hourlyLateCharge;
+            fee = initialLateCharge + Math.floor(additionalDurationInMinutes / 60.0) * hourlyLateCharge;
         }
         return fee;
     }
